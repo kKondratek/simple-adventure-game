@@ -1,5 +1,6 @@
 import Phaser from 'phaser'
 import GameObject = Phaser.GameObjects.GameObject;
+import first = Phaser.Display.Canvas.CanvasPool.first;
 
 export default class MainScene extends Phaser.Scene {
 
@@ -23,7 +24,6 @@ export default class MainScene extends Phaser.Scene {
         this.load.image('b3', 'assets/background/3.png');
         this.load.image('b2', 'assets/background/2.png');
 
-        this.load.image('background', 'assets/background.png');
         this.load.image('ground', 'assets/ground.png');
         this.load.image('grass', 'assets/grass.png');
         this.load.image('platform', 'assets/platform.png')
@@ -41,43 +41,22 @@ export default class MainScene extends Phaser.Scene {
         const width = this.scale.width;
         const height = this.scale.height;
 
-        // this.add.image(width * 0.5, height * (1 / 3), 'b10')
-        //     .setScrollFactor(0);
-        // this.add.image(width * 0.5, height * (1 / 3), 'b9')
-        //     .setScrollFactor(0.3);
-        // this.add.image(width * 0.5, height * (1 / 3), 'b8')
-        //     .setScrollFactor(0.4);
-        // this.add.image(width * 0.5, height * (1 / 3), 'b7')
-        //     .setScrollFactor(0.5);
-        // this.add.image(width * 0.5, height * (1 / 3), 'b6')
-        //     .setScrollFactor(0.6);
-        // this.add.image(width * 0.5, height * (1 / 3), 'b5')
-        //     .setScrollFactor(0.7);
-        // this.add.image(width * 0.5, height * (1 / 3), 'b4')
-        //     .setScrollFactor(0.8);
-        // this.add.image(width * 0.5, height * (1 / 3), 'b3')
-        //     .setScrollFactor(0.9);
-        this.createAligned(this, 2, 'b10', 0);
-        this.createAligned(this, 2, 'b9', 0.3);
-        this.createAligned(this, 2, 'b8', 0.4);
-        this.createAligned(this, 2, 'b7', 0.5);
-        this.createAligned(this, 2, 'b6', 0.6);
-        this.createAligned(this, 2, 'b5', 0.7);
-        this.createAligned(this, 2, 'b4', 0.8);
-        this.createAligned(this, 2, 'b3', 0.9);
-        this.createAligned(this, 2, 'b2', 1);
-        // this.add.image(width * 0.5, height * (1 / 3), 'b2')
-        //     .setScrollFactor(1);
-
-
-        //  this.add.image(400, 200, 'background');
+        MainScene.createAligned(this, 10, 'b10', 0);
+        MainScene.createAligned(this, 11, 'b9', 0.3);
+        MainScene.createAligned(this, 12, 'b8', 0.4);
+        MainScene.createAligned(this, 13, 'b7', 0.5);
+        MainScene.createAligned(this, 14, 'b6', 0.6);
+        MainScene.createAligned(this, 15, 'b5', 0.7);
+        MainScene.createAligned(this, 16, 'b4', 0.8);
+        MainScene.createAligned(this, 17, 'b3', 0.9);
+        MainScene.createAligned(this, 18, 'b2', 1);
 
         this.platform = this.physics.add.staticGroup();
-        const group = this.platform.create(400, 578, 'platform');
+        MainScene.createPlatformAligned(this, 18, 'platform', this.platform);
 
-        this.player = this.physics.add.sprite(300,400, 'player-idle');
+        this.player = this.physics.add.sprite(1000, 485, 'player-idle');
         this.player.setBounce(0.2);
-        this.player.setCollideWorldBounds(true);
+        this.player.setCollideWorldBounds(false);
 
         this.anims.create({
             key: 'right',
@@ -116,8 +95,8 @@ export default class MainScene extends Phaser.Scene {
 
         this.physics.add.collider(this.player, this.platform);
 
-        this.createAligned(this, 2, 'grass', 1);
-        this.createAligned(this, 2, 'ground', 1);
+        MainScene.createAligned(this, 18, 'grass', 1);
+        MainScene.createAligned(this, 18, 'ground', 1);
 
         this.cursors = this.input.keyboard.createCursorKeys();
     }
@@ -146,10 +125,25 @@ export default class MainScene extends Phaser.Scene {
         }
     }
 
-    private createAligned(scene: Phaser.Scene, count: number, texture: string, scrollFactor: number) {
-        scene.add.image(0, scene.scale.height, texture)
-            .setOrigin(0,1)
-            .setScrollFactor(scrollFactor)
+    private static createAligned(scene: Phaser.Scene, count: number, texture: string, scrollFactor: number) {
+        let x = 0;
+        for (let i = 0; i < count; ++i) {
+            const m = scene.add.image(x, scene.scale.height, texture)
+                .setOrigin(0, 1)
+                .setScrollFactor(scrollFactor)
+
+            x += m.width;
+        }
+    }
+
+    private static createPlatformAligned(scene: Phaser.Scene, count: number, texture: string,
+                                         platform: Phaser.Physics.Arcade.StaticGroup) {
+        let x = 0;
+        for (let i = 0; i < count; ++i) {
+            const m = platform.create(x, scene.scale.height * 0.975, texture)
+
+            x += m.width;
+        }
     }
 
 }
