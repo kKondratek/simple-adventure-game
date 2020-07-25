@@ -1,5 +1,9 @@
 import Phaser from 'phaser'
 import GameObject = Phaser.GameObjects.GameObject;
+import install = Phaser.Loader.FileTypesManager.install;
+import {Dialog} from 'phaser3-rex-plugins/templates/ui/ui-components.js';
+import UIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin.js';
+
 
 export default class MainScene extends Phaser.Scene {
 
@@ -7,13 +11,21 @@ export default class MainScene extends Phaser.Scene {
     private player?: Phaser.Physics.Arcade.Sprite;
     private king?: Phaser.Physics.Arcade.Sprite;
     private cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
+    private dialog;
 
     constructor() {
         super('hello-world');
     }
 
     preload() {
+        this.load.scenePlugin('rexuiplugin',
+            'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js',
+            'rexUI', 'rexUI');
+
         // preloading background
+        // this.dialogPlugin = this.load.scenePlugin('DialogModalPlugin', 'plugins/dialogPluginJS.js')
+        //console.log(this.dialogPlugin);
+
         this.load.image('b10', 'assets/background/10.png');
         this.load.image('b9', 'assets/background/9.png');
         this.load.image('b8', 'assets/background/8.png');
@@ -72,6 +84,117 @@ export default class MainScene extends Phaser.Scene {
         MainScene.createAligned(this, 18, 'ground', 1.2);
 
         this.cursors = this.input.keyboard.createCursorKeys();
+
+        // this.sys.install('DialogModalPlugin', this.dialogPlugin?.plugin.caller);
+        // if (this.dialogPlugin) {
+        //     install(this.dialogPlugin);
+        //     console.log(this.sys.scenePlugin)
+        // }
+        // this.dialogPlugin
+        // console.log(this.sys.plugins.get('DialogModalPlugin'));
+        this.dialog = this.rexUI.add.dialog({
+                x: 500,
+                y: 300,
+                width: 500,
+
+                background: this.rexUI.add.roundRectangle(0, 0, 100, 100, 20, 0x1565c0),
+
+            //createLabel(this, 'Title').setDraggable(),
+                title: this.rexUI.add.label({
+                    background: this.rexUI.add.roundRectangle(0, 0, 100, 40, 20, 0x003c8f),
+                    text: this.add.text(0, 0, 'Title', {
+                        fontSize: '24px'
+                    }),
+                    space: {
+                        left: 15,
+                        right: 15,
+                        top: 10,
+                        bottom: 10
+                    }
+                }),
+                //
+                // toolbar: [
+                //     createLabel(this, 'O'),
+                //     createLabel(this, 'X')
+                // ],
+                //
+                // leftToolbar: [
+                //     createLabel(this, 'A'),
+                //     createLabel(this, 'B')
+                // ],
+                //
+                // content: createLabel(this, 'Content'),
+                //
+                // description: createLabel(this, 'Description'),
+                //
+                // choices: [
+                //     createLabel(this, 'Choice0'),
+                //     createLabel(this, 'Choice1'),
+                //     createLabel(this, 'Choice2')
+                // ],
+                //
+                // actions: [
+                //     createLabel(this, 'Action0'),
+                //     createLabel(this, 'Action1')
+                // ],
+
+                space: {
+                    left: 20,
+                    right: 20,
+                    top: -20,
+                    bottom: -20,
+
+                    title: 25,
+                    // titleLeft: 30,
+                    content: 25,
+                    description: 25,
+                    // descriptionLeft: 20,
+                    // descriptionRight: 20,
+                    choices: 25,
+
+                    leftToolbarItem: 5,
+                    toolbarItem: 5,
+                    choice: 15,
+                    action: 15,
+                },
+
+                expand: {
+                    title: false,
+                    // content: false,
+                    // description: false,
+                    // choices: false,
+                    // actions: true,
+                },
+
+                align: {
+                    title: 'center',
+                    // content: 'right',
+                    // description: 'left',
+                    // choices: 'left',
+                    actions: 'right', // 'center'|'left'|'right'
+                },
+
+                click: {
+                    mode: 'release'
+                }
+            })
+            .setDraggable('background')   // Draggable-background
+            .layout()
+            // .drawBounds(this.add.graphics(), 0xff0000)
+            .popUp(1000)
+        // .moveFrom('-=400', undefined, 1000, 'Bounce')
+
+        const print = this.add.text(0, 0, '');
+        this.dialog
+            .on('button.click', function (button, groupName, index, pointer, event) {
+                print.text += groupName + '-' + index + ': ' + button.text + '\n';
+            }, this)
+            .on('button.over', function (button, groupName, index, pointer, event) {
+                button.getElement('background').setStrokeStyle(1, 0xffffff);
+            })
+            .on('button.out', function (button, groupName, index, pointer, event) {
+                button.getElement('background').setStrokeStyle();
+            });
     }
 
     update() {
