@@ -1,6 +1,5 @@
 import Phaser from 'phaser'
 import GameObject = Phaser.GameObjects.GameObject;
-import first = Phaser.Display.Canvas.CanvasPool.first;
 
 export default class MainScene extends Phaser.Scene {
 
@@ -23,10 +22,10 @@ export default class MainScene extends Phaser.Scene {
         this.load.image('b4', 'assets/background/4.png');
         this.load.image('b3', 'assets/background/3.png');
         this.load.image('b2', 'assets/background/2.png');
-
         this.load.image('ground', 'assets/ground.png');
         this.load.image('grass', 'assets/grass.png');
-        this.load.image('platform', 'assets/platform.png')
+        this.load.image('platform', 'assets/platform.png');
+
         this.load.spritesheet('player-idle', 'assets/player-idle.png',
             {frameWidth: 184, frameHeight: 137});
         this.load.spritesheet('player-run-right', 'assets/player-run-right.png',
@@ -38,9 +37,6 @@ export default class MainScene extends Phaser.Scene {
     }
 
     create() {
-        const width = this.scale.width;
-        const height = this.scale.height;
-
         MainScene.createAligned(this, 10, 'b10', 0);
         MainScene.createAligned(this, 11, 'b9', 0.3);
         MainScene.createAligned(this, 12, 'b8', 0.4);
@@ -55,48 +51,18 @@ export default class MainScene extends Phaser.Scene {
         MainScene.createPlatformAligned(this, 18, 'platform', this.platform);
 
         this.player = this.physics.add.sprite(1000, 485, 'player-idle');
-        this.player.setBounce(0.2);
+        this.player.setBounce(0.1);
         this.player.setCollideWorldBounds(false);
 
-        this.anims.create({
-            key: 'right',
-            frames: this.anims.generateFrameNumbers('player-run-right', {
-                start: 0, end: 7
-            }),
-            frameRate: 12,
-            repeat: -1
-        });
-
-        this.anims.create({
-            key: 'left',
-            frames: this.anims.generateFrameNumbers('player-run-left', {
-                start: 0, end: 7
-            }),
-            frameRate: 12,
-            repeat: -1
-        });
-
-        this.anims.create({
-            key: 'idle',
-            frames: this.anims.generateFrameNumbers('player-idle', {
-                start: 0, end: 5
-            }),
-            frameRate: 6
-        });
-
-        this.anims.create({
-            key: 'crouch',
-            frames: this.anims.generateFrameNumbers('player-crouch', {
-                start: 0, end: 3
-            }),
-            frameRate: 6,
-            repeat: -1
-        });
+        MainScene.createAnimation(this, 'right', 'player-run-right', 0, 7, 12);
+        MainScene.createAnimation(this, 'left', 'player-run-left', 0, 7, 12);
+        MainScene.createAnimation(this, 'idle', 'player-idle', 0, 5, 6);
+        MainScene.createAnimation(this, 'crouch', 'player-crouch', 0, 7, 6);
 
         this.physics.add.collider(this.player, this.platform);
 
-        MainScene.createAligned(this, 18, 'grass', 1);
-        MainScene.createAligned(this, 18, 'ground', 1);
+        MainScene.createAligned(this, 18, 'grass', 1.1);
+        MainScene.createAligned(this, 18, 'ground', 1.2);
 
         this.cursors = this.input.keyboard.createCursorKeys();
     }
@@ -110,11 +76,11 @@ export default class MainScene extends Phaser.Scene {
         }
 
         if (this.cursors.right?.isDown) {
-            this.player?.setVelocityX(150);
+            this.player?.setVelocityX(180);
             this.player?.anims.play('right', true);
 
         } else if (this.cursors.left?.isDown) {
-            this.player?.setVelocityX(-150);
+            this.player?.setVelocityX(-180);
             this.player?.anims.play('left', true);
         } else if (this.cursors.down?.isDown) {
             this.player?.setVelocityX(0);
@@ -144,6 +110,18 @@ export default class MainScene extends Phaser.Scene {
 
             x += m.width;
         }
+    }
+
+    private static createAnimation(scene: Phaser.Scene, key: string, spriteSheet: string,
+                                   startFrame: number, endFrame: number, frameRate: number) {
+        scene.anims.create({
+            key: key,
+            frames: scene.anims.generateFrameNumbers(spriteSheet, {
+                start: startFrame, end: endFrame
+            }),
+            frameRate: frameRate,
+            repeat: -1
+        });
     }
 
 }
