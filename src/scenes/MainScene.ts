@@ -5,6 +5,7 @@ export default class MainScene extends Phaser.Scene {
 
     private platform?: Phaser.Physics.Arcade.StaticGroup;
     private player?: Phaser.Physics.Arcade.Sprite;
+    private king?: Phaser.Physics.Arcade.Sprite;
     private cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
 
     constructor() {
@@ -34,6 +35,9 @@ export default class MainScene extends Phaser.Scene {
             {frameWidth: 184, frameHeight: 137});
         this.load.spritesheet('player-crouch', 'assets/player-crouch.png',
             {frameWidth: 184, frameHeight: 137});
+
+        this.load.spritesheet('king-idle', 'assets/king-idle.png',
+            {frameWidth: 155, frameHeight: 130});
     }
 
     create() {
@@ -50,16 +54,19 @@ export default class MainScene extends Phaser.Scene {
         this.platform = this.physics.add.staticGroup();
         MainScene.createPlatformAligned(this, 18, 'platform', this.platform);
 
-        this.player = this.physics.add.sprite(1000, 485, 'player-idle');
-        this.player.setBounce(0.1);
-        this.player.setCollideWorldBounds(false);
+        this.king = this.physics.add.sprite(1800, 490, 'king-idle');
+        this.player = this.physics.add.sprite(1000, 485, 'player-idle')
+            .setBounce(0.1)
+            .setCollideWorldBounds(false);
 
         MainScene.createAnimation(this, 'right', 'player-run-right', 0, 7, 12);
         MainScene.createAnimation(this, 'left', 'player-run-left', 0, 7, 12);
         MainScene.createAnimation(this, 'idle', 'player-idle', 0, 5, 6);
         MainScene.createAnimation(this, 'crouch', 'player-crouch', 0, 7, 6);
+        MainScene.createAnimation(this, 'king-idle', 'king-idle', 0, 5, 6);
 
-        this.physics.add.collider(this.player, this.platform);
+        this.physics.add.collider([this.player, this.king], this.platform);
+        // this.physics.add.collider(this.king, this.platform);
 
         MainScene.createAligned(this, 18, 'grass', 1.1);
         MainScene.createAligned(this, 18, 'ground', 1.2);
@@ -70,6 +77,8 @@ export default class MainScene extends Phaser.Scene {
     update() {
         const cam = this.cameras.main;
         cam.startFollow(this.player as GameObject, true, 1, 0.01, -100, 180);
+
+        this.king?.anims.play('king-idle', true);
 
         if (!this.cursors) {
             return;
