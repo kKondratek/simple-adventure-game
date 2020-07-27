@@ -14,6 +14,12 @@ export class NPC extends Phaser.Physics.Arcade.Sprite {
         MainScene.createAnimation(config.scene, config.key, config.key, config.frameStart, config.frameStop, config.frameRate);
         this.anims.play(config.key, true);
 
-        this.dialog = new Dialog();
+        this.dialog = new Dialog(config.dialog);
+        this.setInteractive();
+    }
+
+    startDialog(playerPosition: number) {
+        console.log('NPC')
+        this.dialog.openWindow(playerPosition);
     }
 }
