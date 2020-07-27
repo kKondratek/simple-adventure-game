@@ -1,17 +1,22 @@
 import Phaser from 'phaser'
 import GameObject = Phaser.GameObjects.GameObject;
+import Anchor from 'phaser3-rex-plugins/plugins/anchor.js';
 import install = Phaser.Loader.FileTypesManager.install;
 import {Dialog} from 'phaser3-rex-plugins/templates/ui/ui-components.js';
 import UIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin.js';
+import {NPC} from "~/model/NPC";
+import Sprite = Phaser.Physics.Arcade.Sprite;
 
 
 export default class MainScene extends Phaser.Scene {
 
     private platform?: Phaser.Physics.Arcade.StaticGroup;
     private player?: Phaser.Physics.Arcade.Sprite;
-    private king?: Phaser.Physics.Arcade.Sprite;
     private cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
+    private kingNPC?: NPC;
     private dialog;
+    private cam;
+
 
     constructor() {
         super('hello-world');
@@ -21,10 +26,6 @@ export default class MainScene extends Phaser.Scene {
         this.load.scenePlugin('rexuiplugin',
             'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js',
             'rexUI', 'rexUI');
-
-        // preloading background
-        // this.dialogPlugin = this.load.scenePlugin('DialogModalPlugin', 'plugins/dialogPluginJS.js')
-        //console.log(this.dialogPlugin);
 
         this.load.image('b10', 'assets/background/10.png');
         this.load.image('b9', 'assets/background/9.png');
@@ -66,10 +67,19 @@ export default class MainScene extends Phaser.Scene {
         this.platform = this.physics.add.staticGroup();
         MainScene.createPlatformAligned(this, 18, 'platform', this.platform);
 
-        this.king = this.physics.add.sprite(1800, 490, 'king-idle');
         this.player = this.physics.add.sprite(1000, 485, 'player-idle')
             .setBounce(0.1)
             .setCollideWorldBounds(false);
+
+        this.kingNPC = new NPC({
+            scene: this,
+            x: 1200,
+            y: 490,
+            key: 'king-idle',
+            frameStart: 0,
+            frameStop: 5,
+            frameRate: 6
+        });
 
         MainScene.createAnimation(this, 'right', 'player-run-right', 0, 7, 12);
         MainScene.createAnimation(this, 'left', 'player-run-left', 0, 7, 12);
@@ -77,107 +87,104 @@ export default class MainScene extends Phaser.Scene {
         MainScene.createAnimation(this, 'crouch', 'player-crouch', 0, 7, 6);
         MainScene.createAnimation(this, 'king-idle', 'king-idle', 0, 5, 6);
 
-        this.physics.add.collider([this.player, this.king], this.platform);
+        this.physics.add.collider([this.player, this.king, this.kingNPC], this.platform);
         // this.physics.add.collider(this.king, this.platform);
 
         MainScene.createAligned(this, 18, 'grass', 1.1);
         MainScene.createAligned(this, 18, 'ground', 1.2);
 
         this.cursors = this.input.keyboard.createCursorKeys();
+        this.cam = this.cameras.main;
 
-        // this.sys.install('DialogModalPlugin', this.dialogPlugin?.plugin.caller);
-        // if (this.dialogPlugin) {
-        //     install(this.dialogPlugin);
-        //     console.log(this.sys.scenePlugin)
-        // }
-        // this.dialogPlugin
-        // console.log(this.sys.plugins.get('DialogModalPlugin'));
         this.dialog = this.rexUI.add.dialog({
-                x: 500,
-                y: 300,
-                width: 500,
+            x: this.player.x + 100,
+            y: 100,
+            width: 800,
+            height: 100,
 
-                background: this.rexUI.add.roundRectangle(0, 0, 100, 100, 20, 0x1565c0),
+            background: this.rexUI.add.roundRectangle(0, 0, 100, 100, 20, 0x1565c0),
 
-            //createLabel(this, 'Title').setDraggable(),
-                title: this.rexUI.add.label({
-                    background: this.rexUI.add.roundRectangle(0, 0, 100, 40, 20, 0x003c8f),
-                    text: this.add.text(0, 0, 'Title', {
-                        fontSize: '24px'
-                    }),
-                    space: {
-                        left: 15,
-                        right: 15,
-                        top: 10,
-                        bottom: 10
-                    }
+
+            title: this.rexUI.add.label({
+                background: this.rexUI.add.roundRectangle(0, 0, 100, 40, 20, 0x003c8f),
+                text: this.add.text(0, 0, 'King', {
+                    fontSize: '24px'
                 }),
-                //
-                // toolbar: [
-                //     createLabel(this, 'O'),
-                //     createLabel(this, 'X')
-                // ],
-                //
-                // leftToolbar: [
-                //     createLabel(this, 'A'),
-                //     createLabel(this, 'B')
-                // ],
-                //
-                // content: createLabel(this, 'Content'),
-                //
-                // description: createLabel(this, 'Description'),
-                //
-                // choices: [
-                //     createLabel(this, 'Choice0'),
-                //     createLabel(this, 'Choice1'),
-                //     createLabel(this, 'Choice2')
-                // ],
-                //
-                // actions: [
-                //     createLabel(this, 'Action0'),
-                //     createLabel(this, 'Action1')
-                // ],
-
                 space: {
-                    left: 20,
-                    right: 20,
-                    top: -20,
-                    bottom: -20,
-
-                    title: 25,
-                    // titleLeft: 30,
-                    content: 25,
-                    description: 25,
-                    // descriptionLeft: 20,
-                    // descriptionRight: 20,
-                    choices: 25,
-
-                    leftToolbarItem: 5,
-                    toolbarItem: 5,
-                    choice: 15,
-                    action: 15,
-                },
-
-                expand: {
-                    title: false,
-                    // content: false,
-                    // description: false,
-                    // choices: false,
-                    // actions: true,
-                },
-
-                align: {
-                    title: 'center',
-                    // content: 'right',
-                    // description: 'left',
-                    // choices: 'left',
-                    actions: 'right', // 'center'|'left'|'right'
-                },
-
-                click: {
-                    mode: 'release'
+                    left: 15,
+                    right: 15,
+                    top: 10,
+                    bottom: 10
                 }
-            })
+            }),
+            //
+            // toolbar: [
+            //     createLabel(this, 'O'),
+            //     createLabel(this, 'X')
+            // ],
+            //
+            // leftToolbar: [
+            //     createLabel(this, 'A'),
+            //     createLabel(this, 'B')
+            // ],
+            //
+            content: this.rexUI.add.label({
+                text: this.add.text(0, 0, 'Hello there!')
+            }),
+            //
+            // description: createLabel(this, 'Description'),
+            //
+            // choices: [
+            //     createLabel(this, 'Choice0'),
+            //     createLabel(this, 'Choice1'),
+            //     createLabel(this, 'Choice2')
+            // ],
+            //
+            // actions: [
+            //     createLabel(this, 'Action0'),
+            //     createLabel(this, 'Action1')
+            // ],
+
+            space: {
+                left: 20,
+                right: 20,
+                top: -20,
+                bottom: -20,
+
+                title: 25,
+                // titleLeft: 30,
+                content: 25,
+                description: 25,
+                // descriptionLeft: 20,
+                // descriptionRight: 20,
+                choices: 25,
+
+                leftToolbarItem: 5,
+                toolbarItem: 5,
+                choice: 15,
+                action: 15,
+            },
+
+            expand: {
+                title: false,
+                // content: false,
+                // description: false,
+                // choices: false,
+                // actions: true,
+            },
+
+            align: {
+                title: 'center',
+                // content: 'right',
+                // description: 'left',
+                // choices: 'left',
+                actions: 'right', // 'center'|'left'|'right'
+            },
+
+            click: {
+                mode: 'release'
+            }
+        })
             .setDraggable('background')   // Draggable-background
             .layout()
             // .drawBounds(this.add.graphics(), 0xff0000)
@@ -195,32 +202,36 @@ export default class MainScene extends Phaser.Scene {
             .on('button.out', function (button, groupName, index, pointer, event) {
                 button.getElement('background').setStrokeStyle();
             });
+
     }
 
     update() {
-        const cam = this.cameras.main;
-        cam.startFollow(this.player as GameObject, true, 1, 0.01, -100, 180);
+        this.cam.startFollow(this.player as GameObject, true, 1, 0.01, -100, 180);
 
-        this.king?.anims.play('king-idle', true);
+        const isDialog = false;
 
         if (!this.cursors) {
             return;
         }
 
-        if (this.cursors.right?.isDown) {
+        if (this.cursors.right?.isDown && !isDialog) {
             this.player?.setVelocityX(180);
             this.player?.anims.play('right', true);
-
-        } else if (this.cursors.left?.isDown) {
+        } else if (this.cursors.left?.isDown && !isDialog) {
             this.player?.setVelocityX(-180);
             this.player?.anims.play('left', true);
-        } else if (this.cursors.down?.isDown) {
+        } else if (this.cursors.down?.isDown && !isDialog) {
             this.player?.setVelocityX(0);
             this.player?.anims.play('crouch', true);
         } else {
             this.player?.setVelocityX(0);
             this.player?.anims.play('idle', true);
         }
+
+        // @ts-ignore
+        // if (this.player?.x >= 1700) {
+        //     this.kingNPC.setVisible(true);
+        // }
     }
 
     private static createAligned(scene: Phaser.Scene, count: number, texture: string, scrollFactor: number) {
@@ -244,8 +255,8 @@ export default class MainScene extends Phaser.Scene {
         }
     }
 
-    private static createAnimation(scene: Phaser.Scene, key: string, spriteSheet: string,
-                                   startFrame: number, endFrame: number, frameRate: number) {
+    static createAnimation(scene: Phaser.Scene, key: string, spriteSheet: string,
+                           startFrame: number, endFrame: number, frameRate: number) {
         scene.anims.create({
             key: key,
             frames: scene.anims.generateFrameNumbers(spriteSheet, {
