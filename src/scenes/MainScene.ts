@@ -79,7 +79,11 @@ export default class MainScene extends Phaser.Scene {
             frameRate: 6,
             dialog: {
                 scene: this,
-                content: ['text-1', 'text-2'],
+                content: new Array<string>('Lorem ipsum dolor sit amet, consectetur adipiscing elit,' +
+                    ' sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+                    'Meas ut sint re bono. Ego has priorem mutetur acquiro sua aggredi obscure rem manibus.' +
+                    ' Non mea infinitum inquirere judicandi uno cunctatus. Im id satis illam vitae. ' +
+                    'Allatae gallice lor deceret vix jam deo. Vetus ut voces otium nasci dicam du. '),
                 NPCPosition: 1200
             }
         }).setSize(60, 110);

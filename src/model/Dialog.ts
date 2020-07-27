@@ -6,7 +6,7 @@ export class Dialog {
     private readonly windowColor: number;
     private readonly windowHeight: number;
     private readonly padding: number;
-    private closeBtnColor: string;
+    private readonly closeBtnColor: string;
     private dialogSpeed: number;
     private eventCounter: number;
 
@@ -16,8 +16,9 @@ export class Dialog {
     private graphics?: Phaser.GameObjects.Graphics;
     private scene: any;
     private closeBtn?: Phaser.GameObjects.Text;
-    private playerPosition?: number;
     private text?: Phaser.GameObjects.Text;
+    private dialog: any;
+    private timedEvent: any;
 
     constructor(config) {
         this.scene = config.scene;
@@ -37,22 +38,11 @@ export class Dialog {
         this.eventCounter = 0;
         // if the dialog window is shown
         this.visible = true;
-        // the current text in the window
-        // this.text;
-        // // the text that will be displayed in the window
-        // this.dialog;
-        // this.graphics;
-        // this.closeBtn;
     }
 
     openWindow(playerPosition: number) {
         this.createWindow(playerPosition)
     }
-
-    // closeWindow() {
-    //     // TODO: close button
-    //     this.graphics?.destroy();
-    // }
 
     // Creates dialog window
     private createWindow(playerPosition: number) {
@@ -64,6 +54,7 @@ export class Dialog {
 
         this.createCloseWindowButton(playerPosition);
         this.createCloseWindowButtonBorder(playerPosition);
+        this.setDialogText(this.content[0] + '', playerPosition);
     }
 
     // Gets the width of the game (based on the scene)
@@ -106,7 +97,7 @@ export class Dialog {
     private createCloseWindowButton(playerPosition: number) {
         const dialogRef = this;
         this.closeBtn = this.scene.make.text({
-            x: playerPosition + 52 + this.getGameWidth() / 2, //this.getGameWidth() - this.padding - 14,
+            x: playerPosition + 52 + this.getGameWidth() / 2,
             y: 63,
             text: 'X',
             style: {
@@ -139,5 +130,46 @@ export class Dialog {
         if (this.graphics) this.graphics.visible = this.visible;
         if (this.closeBtn) this.closeBtn.visible = this.visible;
         this.scene.isDialog = false;
+    }
+
+    private setDialogText(text, playerPosition) {
+        this.eventCounter = 0;
+        this.dialog = text.split('');
+        if (this.timedEvent) this.timedEvent.remove();
+
+        let tempText = '';
+        this.setText(tempText, playerPosition);
+
+        this.timedEvent = this.scene.time.addEvent({
+            delay: 150 - (this.dialogSpeed * 30),
+            callback: this.animateText,
+            callbackScope: this,
+            loop: true
+        });
+    }
+
+    private setText(text, playerPosition: number) {
+        // Reset the dialog
+        if (this.text) this.text.destroy();
+
+        const x = playerPosition - 260;
+        const y = 70;//this.getGameHeight() - this.windowHeight - this.padding + 10;
+
+        this.text = this.scene.make.text({
+            x,
+            y,
+            text,
+            style: {
+                wordWrap: {width: this.getGameWidth() - (this.padding * 2) - 25}
+            }
+        });
+    }
+
+    private animateText() {
+        this.eventCounter++;
+        this.text?.setText(this.text.text + this.dialog[this.eventCounter - 1]);
+        if (this.eventCounter === this.dialog.length) {
+            this.timedEvent.remove();
+        }
     }
 }
