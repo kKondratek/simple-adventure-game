@@ -15,6 +15,9 @@ export class Dialog {
     private content: Array<string>;
     private graphics?: Phaser.GameObjects.Graphics;
     private scene: any;
+    private closeBtn?: Phaser.GameObjects.Text;
+    private playerPosition?: number;
+    private text?: Phaser.GameObjects.Text;
 
     constructor(config) {
         this.scene = config.scene;
@@ -42,6 +45,15 @@ export class Dialog {
         // this.closeBtn;
     }
 
+    openWindow(playerPosition: number) {
+        this.createWindow(playerPosition)
+    }
+
+    // closeWindow() {
+    //     // TODO: close button
+    //     this.graphics?.destroy();
+    // }
+
     // Creates dialog window
     private createWindow(playerPosition: number) {
         const dimensions = this.calculateWindowDimensions(this.getGameWidth(), playerPosition);
@@ -49,6 +61,9 @@ export class Dialog {
 
         this.createOuterWindow(dimensions.x, dimensions.y, dimensions.rectWidth, dimensions.rectHeight);
         this.createInnerWindow(dimensions.x, dimensions.y, dimensions.rectWidth, dimensions.rectHeight);
+
+        this.createCloseWindowButton(playerPosition);
+        this.createCloseWindowButtonBorder(playerPosition);
     }
 
     // Gets the width of the game (based on the scene)
@@ -63,9 +78,7 @@ export class Dialog {
 
     // Calculates where to place the dialog window based on the game size
     private calculateWindowDimensions(width, playerPosition) {
-        console.log(playerPosition)
         let x = playerPosition + 130 - width / 2;
-        console.log(x);
         let y = 60;
         let rectWidth = width - (this.padding * 2);
         let rectHeight = this.windowHeight;
@@ -79,7 +92,6 @@ export class Dialog {
 
     // Creates the border rectangle of the dialog window
     private createInnerWindow(x, y, rectWidth, rectHeight) {
-        console.log('x: ' + x + ' y: ' + y)
         this.graphics?.fillStyle(this.windowColor, this.windowAlpha);
         this.graphics?.fillRect(x + 1, y + 1, rectWidth - 1, rectHeight - 1);
     }
@@ -90,12 +102,42 @@ export class Dialog {
         this.graphics?.strokeRect(x, y, rectWidth, rectHeight);
     }
 
-    openWindow(playerPosition: number) {
-        this.createWindow(playerPosition)
+    // Creates the close dialog window button
+    private createCloseWindowButton(playerPosition: number) {
+        const dialogRef = this;
+        this.closeBtn = this.scene.make.text({
+            x: playerPosition + 52 + this.getGameWidth() / 2, //this.getGameWidth() - this.padding - 14,
+            y: 63,
+            text: 'X',
+            style: {
+                font: 'bold 12px Arial',
+                fill: this.closeBtnColor
+            }
+        });
+        this.closeBtn?.setInteractive();
+
+        this.closeBtn?.on('pointerover', () => {
+            this.closeBtn?.setTint(0xff0000);
+        });
+        this.closeBtn?.on('pointerout', () => {
+            this.closeBtn?.clearTint();
+        });
+        this.closeBtn?.on('pointerdown', () => {
+            dialogRef.toggleWindow();
+        });
     }
 
-    closeWindow() {
-        // TODO: close button
-        this.graphics?.destroy();
+    private createCloseWindowButtonBorder(playerPosition: number) {
+        const x = playerPosition + 46 + this.getGameWidth() / 2;//this.getGameWidth() - this.padding - 20;
+        const y = 60
+        this.graphics?.strokeRect(x, y, 20, 20);
+    }
+
+    private toggleWindow() {
+        this.visible = !this.visible;
+        if (this.text) this.text.visible = this.visible;
+        if (this.graphics) this.graphics.visible = this.visible;
+        if (this.closeBtn) this.closeBtn.visible = this.visible;
+        this.scene.isDialog = false;
     }
 }

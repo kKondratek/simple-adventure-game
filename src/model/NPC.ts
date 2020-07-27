@@ -16,10 +16,19 @@ export class NPC extends Phaser.Physics.Arcade.Sprite {
 
         this.dialog = new Dialog(config.dialog);
         this.setInteractive();
+        this.on('pointerdown', () => {
+            // @ts-ignore
+            if (Math.abs(this.x - config.scene.player?.x) <= 200) {
+                // @ts-ignore
+                this.kingNPC?.startDialog(this.player?.x);
+                config.scene.isDialog = true;
+            } else {
+                console.log('too far away');
+            }
+        });
     }
 
     startDialog(playerPosition: number) {
-        console.log('NPC')
         this.dialog.openWindow(playerPosition);
     }
 }

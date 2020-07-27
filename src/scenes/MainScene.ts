@@ -15,6 +15,7 @@ export default class MainScene extends Phaser.Scene {
     private cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
     private kingNPC?: NPC;
     private cam;
+    private isDialog?: boolean;
 
 
     constructor() {
@@ -101,34 +102,32 @@ export default class MainScene extends Phaser.Scene {
 
         this.cursors = this.input.keyboard.createCursorKeys();
 
-        this.kingNPC.on('pointerdown', npc => {
+        this.kingNPC.on('pointerdown', () => {
             // @ts-ignore
             if (Math.abs(this.kingNPC.x - this.player?.x) <= 200) {
                 // @ts-ignore
                 this.kingNPC?.startDialog(this.player?.x);
-                // TODO: set isDialog, velocity = 0
+                this.isDialog = true;
             } else {
                 console.log('too far away');
             }
-        })
+        });
     }
 
     update() {
         this.cam.startFollow(this.player as GameObject, true, 1, 0.01, -100, 180);
 
-        const isDialog = false;
-
         if (!this.cursors) {
             return;
         }
 
-        if (this.cursors.right?.isDown && !isDialog) {
+        if (this.cursors.right?.isDown && !this.isDialog) {
             this.player?.setVelocityX(180);
             this.player?.anims.play('right', true);
-        } else if (this.cursors.left?.isDown && !isDialog) {
+        } else if (this.cursors.left?.isDown && !this.isDialog) {
             this.player?.setVelocityX(-180);
             this.player?.anims.play('left', true);
-        } else if (this.cursors.down?.isDown && !isDialog) {
+        } else if (this.cursors.down?.isDown && !this.isDialog) {
             this.player?.setVelocityX(0);
             this.player?.anims.play('crouch', true);
         } else {
