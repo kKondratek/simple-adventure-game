@@ -119,16 +119,15 @@ export class Dialog {
     }
 
     private createCloseWindowButtonBorder(playerPosition: number) {
-        const x = playerPosition + 46 + this.getGameWidth() / 2;//this.getGameWidth() - this.padding - 20;
+        const x = playerPosition + 46 + this.getGameWidth() / 2;
         const y = 60
         this.graphics?.strokeRect(x, y, 20, 20);
     }
 
     private toggleWindow() {
-        this.visible = !this.visible;
-        if (this.text) this.text.visible = this.visible;
-        if (this.graphics) this.graphics.visible = this.visible;
-        if (this.closeBtn) this.closeBtn.visible = this.visible;
+        if (this.text) this.text.visible = false;
+        if (this.graphics) this.graphics.visible = false;
+        if (this.closeBtn) this.closeBtn.visible = false;
         this.scene.isDialog = false;
     }
 
@@ -153,7 +152,7 @@ export class Dialog {
         if (this.text) this.text.destroy();
 
         const x = playerPosition - 260;
-        const y = 70;//this.getGameHeight() - this.windowHeight - this.padding + 10;
+        const y = 70;
 
         this.text = this.scene.make.text({
             x,

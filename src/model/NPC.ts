@@ -1,11 +1,11 @@
 import MainScene from "~/scenes/MainScene";
 import {Dialog} from "~/model/Dialog";
-import TimerEvent = Phaser.Time.TimerEvent;
 
 export class NPC extends Phaser.Physics.Arcade.Sprite {
 
     private dialog: Dialog;
     private farDistanceText;
+    private sign;
 
     constructor(config) {
         super(config.scene, config.x, config.y, config.key);
@@ -26,7 +26,18 @@ export class NPC extends Phaser.Physics.Arcade.Sprite {
             visible: false
         });
 
+        this.sign = config.scene.make.text({
+            x: this.x + 7,
+            y: this.y - 50,
+            text: '!',
+            visible: false,
+            style: {
+                font: 'bold 20px Arial',
+            }
+        })
+
         this.on('pointerdown', () => {
+            this.sign.visible = false;
             // @ts-ignore
             if (!config.scene.isDialog) {
                 if (Math.abs(this.x - config.scene.player?.x) <= 150) {
@@ -34,7 +45,6 @@ export class NPC extends Phaser.Physics.Arcade.Sprite {
                     this.startDialog(config.scene.player?.x);
                     config.scene.isDialog = true;
                 } else {
-                    console.log('too far away');
                     this.farDistanceText.visible = true;
                     const timerEvent = this.scene.time.addEvent({
                         delay: 1000,
@@ -44,6 +54,13 @@ export class NPC extends Phaser.Physics.Arcade.Sprite {
                     });
                 }
             }
+        });
+
+        this.on('pointerover', () => {
+            if (!this.farDistanceText.visible && !config.scene.isDialog) this.sign.visible = true;
+        });
+        this.on('pointerout', () => {
+            this.sign.visible = false;
         });
     }
 
