@@ -1,9 +1,11 @@
 import MainScene from "~/scenes/MainScene";
 import {Dialog} from "~/model/Dialog";
+import TimerEvent = Phaser.Time.TimerEvent;
 
 export class NPC extends Phaser.Physics.Arcade.Sprite {
 
-    dialog: Dialog;
+    private dialog: Dialog;
+    private farDistanceText;
 
     constructor(config) {
         super(config.scene, config.x, config.y, config.key);
@@ -17,20 +19,39 @@ export class NPC extends Phaser.Physics.Arcade.Sprite {
         this.dialog = new Dialog(config.dialog);
         this.setInteractive();
 
-        // TODO: fix NPC.on()
-        // this.on('pointerdown', () => {
-        //     // @ts-ignore
-        //     if (Math.abs(this.x - config.scene.player?.x) <= 200) {
-        //         // @ts-ignore
-        //         this.kingNPC?.startDialog(this.player?.x);
-        //         config.scene.isDialog = true;
-        //     } else {
-        //         console.log('too far away');
-        //     }
-        // });
+        this.farDistanceText = config.scene.make.text({
+            x: this.x - 40,
+            y: this.y - 50,
+            text: 'Come closer',
+            visible: false
+        });
+
+        this.on('pointerdown', () => {
+            // @ts-ignore
+            if (!config.scene.isDialog) {
+                if (Math.abs(this.x - config.scene.player?.x) <= 150) {
+                    // @ts-ignore
+                    this.startDialog(config.scene.player?.x);
+                    config.scene.isDialog = true;
+                } else {
+                    console.log('too far away');
+                    this.farDistanceText.visible = true;
+                    const timerEvent = this.scene.time.addEvent({
+                        delay: 1000,
+                        callback: this.hideText,
+                        callbackScope: this,
+                        loop: false
+                    });
+                }
+            }
+        });
     }
 
-    startDialog(playerPosition: number) {
+    private startDialog(playerPosition: number) {
         this.dialog.openWindow(playerPosition);
+    }
+
+    private hideText() {
+        this.farDistanceText.visible = false;
     }
 }

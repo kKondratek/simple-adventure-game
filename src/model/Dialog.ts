@@ -18,7 +18,7 @@ export class Dialog {
     private closeBtn?: Phaser.GameObjects.Text;
     private text?: Phaser.GameObjects.Text;
     private dialog: any;
-    private timedEvent: any;
+    private timerEvent: any;
 
     constructor(config) {
         this.scene = config.scene;
@@ -135,12 +135,12 @@ export class Dialog {
     private setDialogText(text, playerPosition) {
         this.eventCounter = 0;
         this.dialog = text.split('');
-        if (this.timedEvent) this.timedEvent.remove();
+        if (this.timerEvent) this.timerEvent.remove();
 
         let tempText = '';
         this.setText(tempText, playerPosition);
 
-        this.timedEvent = this.scene.time.addEvent({
+        this.timerEvent = this.scene.time.addEvent({
             delay: 150 - (this.dialogSpeed * 30),
             callback: this.animateText,
             callbackScope: this,
@@ -169,7 +169,7 @@ export class Dialog {
         this.eventCounter++;
         this.text?.setText(this.text.text + this.dialog[this.eventCounter - 1]);
         if (this.eventCounter === this.dialog.length) {
-            this.timedEvent.remove();
+            this.timerEvent.remove();
         }
     }
 }

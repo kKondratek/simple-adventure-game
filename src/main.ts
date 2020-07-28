@@ -1,7 +1,5 @@
 import Phaser from 'phaser'
-
 import MainScene from './scenes/MainScene'
-import UIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin.js';
 
 
 const config: Phaser.Types.Core.GameConfig = {
@@ -12,18 +10,10 @@ const config: Phaser.Types.Core.GameConfig = {
         default: 'arcade',
         arcade: {
             gravity: {y: 300},
-            debug: true
+            debug: false
         }
     },
     scene: [MainScene],
-    plugins: {
-        scene: [{
-            key: 'rexUI',
-            plugin: UIPlugin,
-            start: true,
-            mapping: 'rexUI'
-        }]
-    }
 };
 
 export default new Phaser.Game(config)
