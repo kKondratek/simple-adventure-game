@@ -63,10 +63,14 @@ export class Dialog {
         // @ts-ignore
         this.createButtonBorder(this.playerPosition + 46 + this.getGameWidth() / 2,60);
         this.createNextTextButton();
-        this.setDialogText(this.content[this.textPointer] + '');
         // @ts-ignore
         this.createButtonBorder(this.playerPosition + 46 + this.getGameWidth() / 2, 190);
-        this.createButtonBorder(this.textPointer + 38, this.getGameHeight() / 2 + 170);
+
+        this.createPreviousTextButton();
+        // @ts-ignore
+        this.createButtonBorder(this.playerPosition + 22+ this.getGameWidth() / 2, 190);
+
+        this.setDialogText(this.content[this.textPointer] + '');
     }
 
     // Gets the width of the game (based on the scene)
@@ -75,9 +79,9 @@ export class Dialog {
     }
 
     // Gets the height of the game (based on the scene)
-    private getGameHeight(): number {
-        return this.scene.sys.game.config.height;
-    }
+    // private getGameHeight(): number {
+    //     return this.scene.sys.game.config.height;
+    // }
 
     // Calculates where to place the dialog window based on the game size
     private calculateWindowDimensions(width) {
@@ -141,6 +145,23 @@ export class Dialog {
         }
     }
 
+    private createPreviousTextButton() {
+        if (this.playerPosition) {
+            this.previousBtn = this.createButton(this.playerPosition + 27 + this.getGameWidth() / 2,
+                41 + this.windowHeight, '<', 16);
+
+            this.previousBtn?.on('pointerover', () => {
+                this.previousBtn?.setTint(0xff0000);
+            });
+            this.previousBtn?.on('pointerout', () => {
+                this.previousBtn?.clearTint();
+            });
+            this.previousBtn?.on('pointerdown', () => {
+                this.previousText();
+            });
+        }
+    }
+
     private createButton(x: number, y: number, sign: string, size: number): Phaser.GameObjects.Text {
         return this.scene.make.text({
             x: x,
@@ -162,6 +183,7 @@ export class Dialog {
         if (this.graphics) this.graphics.visible = false;
         if (this.closeBtn) this.closeBtn.visible = false;
         if (this.nextBtn) this.nextBtn.visible = false;
+        if (this.previousBtn) this.previousBtn.visible = false;
         this.scene.isDialog = false;
         this.textPointer = 0;
     }
@@ -210,15 +232,15 @@ export class Dialog {
 
     private nextText() {
         // @ts-ignore
-        if (++this.textPointer < this.contentSize) {
-            this.setDialogText(this.content[this.textPointer]);
+        if (this.textPointer < this.contentSize - 1) {
+            this.setDialogText(this.content[++this.textPointer]);
         }
     }
 
     private previousText() {
         // @ts-ignore
-        if (--this.textPointer > -1) {
-            this.setDialogText(this.content[this.textPointer]);
+        if (this.textPointer > 0) {
+            this.setDialogText(this.content[--this.textPointer]);
         }
     }
 }
