@@ -6,19 +6,22 @@ export class Dialog {
     private readonly windowColor: number;
     private readonly windowHeight: number;
     private readonly padding: number;
-    private readonly closeBtnColor: string;
-    private dialogSpeed: number;
+    private readonly btnColor: string;
+    private readonly dialogSpeed: number;
+    private readonly content: { [key:number]:string; };
     private eventCounter: number;
-
     private visible: boolean;
-
-    private content: Array<string>;
     private graphics?: Phaser.GameObjects.Graphics;
     private scene: any;
     private closeBtn?: Phaser.GameObjects.Text;
+    private nextBtn?: Phaser.GameObjects.Text;
+    private previousBtn?: Phaser.GameObjects.Text;
     private text?: Phaser.GameObjects.Text;
     private dialog: any;
     private timerEvent: any;
+    private playerPosition?: number;
+    private textPointer: number;
+    private contentSize?: number;
 
     constructor(config) {
         this.scene = config.scene;
@@ -30,31 +33,40 @@ export class Dialog {
         this.windowColor = config.windowColor || 0x303030;
         this.windowHeight = config.windowHeight || 150;
         this.padding = config.padding || 32;
-        this.closeBtnColor = config.closeBtnColor || 'darkgoldenrod';
-        this.dialogSpeed = config.dialogSpeed || 3;
+        this.btnColor = config.btnColor || 'darkgoldenrod';
+        this.dialogSpeed = config.dialogSpeed || 4;
 
-        this.content = new Array<string>(config.content);
+        this.content = config.content;
+        this.contentSize = config.contentSize;
+
         // used for animating the text
         this.eventCounter = 0;
         // if the dialog window is shown
         this.visible = true;
+        this.textPointer = 0;
     }
 
     openWindow(playerPosition: number) {
-        this.createWindow(playerPosition)
+        this.playerPosition = playerPosition;
+        this.createWindow();
     }
 
     // Creates dialog window
-    private createWindow(playerPosition: number) {
-        const dimensions = this.calculateWindowDimensions(this.getGameWidth(), playerPosition);
+    private createWindow() {
+        const dimensions = this.calculateWindowDimensions(this.getGameWidth());
         this.graphics = this.scene.add.graphics();
 
         this.createOuterWindow(dimensions.x, dimensions.y, dimensions.rectWidth, dimensions.rectHeight);
         this.createInnerWindow(dimensions.x, dimensions.y, dimensions.rectWidth, dimensions.rectHeight);
 
-        this.createCloseWindowButton(playerPosition);
-        this.createCloseWindowButtonBorder(playerPosition);
-        this.setDialogText(this.content[0] + '', playerPosition);
+        this.createCloseWindowButton();
+        // @ts-ignore
+        this.createButtonBorder(this.playerPosition + 46 + this.getGameWidth() / 2,60);
+        this.createNextTextButton();
+        this.setDialogText(this.content[this.textPointer] + '');
+        // @ts-ignore
+        this.createButtonBorder(this.playerPosition + 46 + this.getGameWidth() / 2, 190);
+        this.createButtonBorder(this.textPointer + 38, this.getGameHeight() / 2 + 170);
     }
 
     // Gets the width of the game (based on the scene)
@@ -68,8 +80,9 @@ export class Dialog {
     }
 
     // Calculates where to place the dialog window based on the game size
-    private calculateWindowDimensions(width, playerPosition) {
-        let x = playerPosition + 130 - width / 2;
+    private calculateWindowDimensions(width) {
+        // @ts-ignore
+        let x = this.playerPosition + 130 - width / 2;
         let y = 60;
         let rectWidth = width - (this.padding * 2);
         let rectHeight = this.windowHeight;
@@ -94,33 +107,53 @@ export class Dialog {
     }
 
     // Creates the close dialog window button
-    private createCloseWindowButton(playerPosition: number) {
+    private createCloseWindowButton() {
         const dialogRef = this;
-        this.closeBtn = this.scene.make.text({
-            x: playerPosition + 52 + this.getGameWidth() / 2,
-            y: 63,
-            text: 'X',
-            style: {
-                font: 'bold 12px Arial',
-                fill: this.closeBtnColor
-            }
-        });
-        this.closeBtn?.setInteractive();
-
-        this.closeBtn?.on('pointerover', () => {
-            this.closeBtn?.setTint(0xff0000);
-        });
-        this.closeBtn?.on('pointerout', () => {
-            this.closeBtn?.clearTint();
-        });
-        this.closeBtn?.on('pointerdown', () => {
-            dialogRef.toggleWindow();
-        });
+        if (this.playerPosition) {
+            this.closeBtn = this.createButton(this.playerPosition + 52 + this.getGameWidth() / 2,
+                62, 'X', 14);
+            this.closeBtn?.on('pointerover', () => {
+                this.closeBtn?.setTint(0xff0000);
+            });
+            this.closeBtn?.on('pointerout', () => {
+                this.closeBtn?.clearTint();
+            });
+            this.closeBtn?.on('pointerdown', () => {
+                dialogRef.toggleWindow();
+            });
+        }
     }
 
-    private createCloseWindowButtonBorder(playerPosition: number) {
-        const x = playerPosition + 46 + this.getGameWidth() / 2;
-        const y = 60
+    private createNextTextButton() {
+        if (this.playerPosition) {
+            this.nextBtn = this.createButton(this.playerPosition + 52 + this.getGameWidth() / 2,
+                41 + this.windowHeight, '>', 16);
+
+            this.nextBtn?.on('pointerover', () => {
+                this.nextBtn?.setTint(0xff0000);
+            });
+            this.nextBtn?.on('pointerout', () => {
+                this.nextBtn?.clearTint();
+            });
+            this.nextBtn?.on('pointerdown', () => {
+                this.nextText();
+            });
+        }
+    }
+
+    private createButton(x: number, y: number, sign: string, size: number): Phaser.GameObjects.Text {
+        return this.scene.make.text({
+            x: x,
+            y: y,
+            text: sign,
+            style: {
+                font: `bold ${size}px Arial`,
+                fill: this.btnColor
+            }
+        }).setInteractive();
+    }
+
+    private createButtonBorder(x: number, y: number) {
         this.graphics?.strokeRect(x, y, 20, 20);
     }
 
@@ -128,16 +161,18 @@ export class Dialog {
         if (this.text) this.text.visible = false;
         if (this.graphics) this.graphics.visible = false;
         if (this.closeBtn) this.closeBtn.visible = false;
+        if (this.nextBtn) this.nextBtn.visible = false;
         this.scene.isDialog = false;
+        this.textPointer = 0;
     }
 
-    private setDialogText(text, playerPosition) {
+    private setDialogText(text) {
         this.eventCounter = 0;
         this.dialog = text.split('');
         if (this.timerEvent) this.timerEvent.remove();
 
         let tempText = '';
-        this.setText(tempText, playerPosition);
+        this.setText(tempText);
 
         this.timerEvent = this.scene.time.addEvent({
             delay: 150 - (this.dialogSpeed * 30),
@@ -147,21 +182,22 @@ export class Dialog {
         });
     }
 
-    private setText(text, playerPosition: number) {
+    private setText(text) {
         // Reset the dialog
         if (this.text) this.text.destroy();
 
-        const x = playerPosition - 260;
-        const y = 70;
-
-        this.text = this.scene.make.text({
-            x,
-            y,
-            text,
-            style: {
-                wordWrap: {width: this.getGameWidth() - (this.padding * 2) - 25}
-            }
-        });
+        if (this.playerPosition) {
+            const x = this.playerPosition - 260;
+            const y = 70;
+            this.text = this.scene.make.text({
+                x,
+                y,
+                text,
+                style: {
+                    wordWrap: {width: this.getGameWidth() - (this.padding * 2) - 25}
+                }
+            });
+        }
     }
 
     private animateText() {
@@ -169,6 +205,20 @@ export class Dialog {
         this.text?.setText(this.text.text + this.dialog[this.eventCounter - 1]);
         if (this.eventCounter === this.dialog.length) {
             this.timerEvent.remove();
+        }
+    }
+
+    private nextText() {
+        // @ts-ignore
+        if (++this.textPointer < this.contentSize) {
+            this.setDialogText(this.content[this.textPointer]);
+        }
+    }
+
+    private previousText() {
+        // @ts-ignore
+        if (--this.textPointer > -1) {
+            this.setDialogText(this.content[this.textPointer]);
         }
     }
 }

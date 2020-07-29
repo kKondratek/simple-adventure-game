@@ -56,6 +56,12 @@ export default class MainScene extends Phaser.Scene {
         this.platform = this.physics.add.staticGroup();
         MainScene.createPlatformAligned(this, 18, 'platform', this.platform);
 
+        const dialogContent : { [key:number]:string; } = {};
+        dialogContent[0] = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit,' +
+            ' sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.';
+        dialogContent[1] = ' Non mea infinitum inquirere judicandi uno cunctatus. Im id satis illam vitae. ' +
+            'Allatae gallice lor deceret vix jam deo. Vetus ut voces otium nasci dicam du. '
+
         this.kingNPC = new NPC({
             scene: this,
             x: 1200,
@@ -66,11 +72,8 @@ export default class MainScene extends Phaser.Scene {
             frameRate: 6,
             dialog: {
                 scene: this,
-                content: new Array<string>('Lorem ipsum dolor sit amet, consectetur adipiscing elit,' +
-                    ' sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-                    'Meas ut sint re bono. Ego has priorem mutetur acquiro sua aggredi obscure rem manibus.' +
-                    ' Non mea infinitum inquirere judicandi uno cunctatus. Im id satis illam vitae. ' +
-                    'Allatae gallice lor deceret vix jam deo. Vetus ut voces otium nasci dicam du. '),
+                content: dialogContent,
+                contentSize: 2,
                 NPCPosition: 1200
             }
         }).setSize(60, 110);
