@@ -22,6 +22,7 @@ export class Dialog {
     private playerPosition?: number;
     private textPointer: number;
     private contentSize?: number;
+    private disabledBtnColor: number;
 
     constructor(config) {
         this.scene = config.scene;
@@ -35,6 +36,7 @@ export class Dialog {
         this.padding = config.padding || 32;
         this.btnColor = config.btnColor || 'darkgoldenrod';
         this.dialogSpeed = config.dialogSpeed || 4;
+        this.disabledBtnColor = config.disabledBtnColor || 0x303030;
 
         this.content = config.content;
         this.contentSize = config.contentSize;
@@ -69,6 +71,7 @@ export class Dialog {
         this.createPreviousTextButton();
         // @ts-ignore
         this.createButtonBorder(this.playerPosition + 22+ this.getGameWidth() / 2, 190);
+        this.previousBtn?.setFill(this.disabledBtnColor);
 
         this.setDialogText(this.content[this.textPointer] + '');
     }
@@ -134,13 +137,13 @@ export class Dialog {
                 41 + this.windowHeight, '>', 16);
 
             this.nextBtn?.on('pointerover', () => {
-                this.nextBtn?.setTint(0xff0000);
+                    this.nextBtn?.setTint(0xff0000);
             });
             this.nextBtn?.on('pointerout', () => {
                 this.nextBtn?.clearTint();
             });
             this.nextBtn?.on('pointerdown', () => {
-                this.nextText();
+                    this.nextText();
             });
         }
     }
@@ -151,13 +154,13 @@ export class Dialog {
                 41 + this.windowHeight, '<', 16);
 
             this.previousBtn?.on('pointerover', () => {
-                this.previousBtn?.setTint(0xff0000);
+                    this.previousBtn?.setTint(0xff0000);
             });
             this.previousBtn?.on('pointerout', () => {
                 this.previousBtn?.clearTint();
             });
             this.previousBtn?.on('pointerdown', () => {
-                this.previousText();
+                    this.previousText();
             });
         }
     }
@@ -202,6 +205,11 @@ export class Dialog {
             callbackScope: this,
             loop: true
         });
+
+        // @ts-ignore
+        // if (this.textPointer == this.contentSize - 1) {
+        //     this.nextBtn?.disableInteractive();
+        // }
     }
 
     private setText(text) {
@@ -234,6 +242,15 @@ export class Dialog {
         // @ts-ignore
         if (this.textPointer < this.contentSize - 1) {
             this.setDialogText(this.content[++this.textPointer]);
+            // @ts-ignore
+            if (this.textPointer + 1 === this.contentSize) {
+                // @ts-ignore
+                this.changeBtnColor(this.nextBtn, this.disabledBtnColor);
+            }
+            if (this.textPointer === 1) {
+                // @ts-ignore
+                this.changeBtnColor(this.previousBtn, this.btnColor);
+            }
         }
     }
 
@@ -241,6 +258,18 @@ export class Dialog {
         // @ts-ignore
         if (this.textPointer > 0) {
             this.setDialogText(this.content[--this.textPointer]);
+            if (this.textPointer === 0) {
+                // @ts-ignore
+                this.changeBtnColor(this.previousBtn, this.disabledBtnColor);
+            }
+            if (this.textPointer + 1 !== this.contentSize) {
+                // @ts-ignore
+                this.changeBtnColor(this.nextBtn, this.btnColor);
+            }
         }
+    }
+
+    private changeBtnColor(btn: Phaser.GameObjects.Text, color) {
+        btn.setFill(color);
     }
 }

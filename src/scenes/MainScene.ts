@@ -59,8 +59,13 @@ export default class MainScene extends Phaser.Scene {
         const dialogContent : { [key:number]:string; } = {};
         dialogContent[0] = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit,' +
             ' sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.';
-        dialogContent[1] = ' Non mea infinitum inquirere judicandi uno cunctatus. Im id satis illam vitae. ' +
-            'Allatae gallice lor deceret vix jam deo. Vetus ut voces otium nasci dicam du. '
+        dialogContent[1] = 'Non mea infinitum inquirere judicandi uno cunctatus. Im id satis illam vitae. ' +
+            'Allatae gallice lor deceret vix jam deo. Vetus ut voces otium nasci dicam du. ';
+        dialogContent[2] = 'Dat sufficiunt sae jam mem accidentia affirmabam indubitati. ' +
+            'Ne optime florum nescio gi facile vitari. Ex ente et fide aspi. Ab lente gi to sexta tactu istud. ' +
+            'Itaque putare primam nul vul. Fuse ibi unde vidi fuit hic. Ab ostensum se potestis reversus reliquis' +
+            ' ut. Lor existeret somniemus ego remotiora tantumque terminari judicandi rea.';
+            ' ut. Lor existeret somniemus ego remotiora tantumque terminari judicandi rea.';
 
         this.kingNPC = new NPC({
             scene: this,
@@ -73,7 +78,7 @@ export default class MainScene extends Phaser.Scene {
             dialog: {
                 scene: this,
                 content: dialogContent,
-                contentSize: 2,
+                contentSize: 3,
                 NPCPosition: 1200
             }
         }).setSize(60, 110);
