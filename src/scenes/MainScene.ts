@@ -43,18 +43,18 @@ export default class MainScene extends Phaser.Scene {
     }
 
     create() {
-        MainScene.createAligned(this, 10, 'b10', 0);
-        MainScene.createAligned(this, 11, 'b9', 0.3);
-        MainScene.createAligned(this, 12, 'b8', 0.4);
-        MainScene.createAligned(this, 13, 'b7', 0.5);
-        MainScene.createAligned(this, 14, 'b6', 0.6);
-        MainScene.createAligned(this, 15, 'b5', 0.7);
-        MainScene.createAligned(this, 16, 'b4', 0.8);
-        MainScene.createAligned(this, 17, 'b3', 0.9);
-        MainScene.createAligned(this, 18, 'b2', 1);
+        MainScene.createAligned(this, 1, 'b10', 0);
+        MainScene.createAligned(this, 2, 'b9', 0.3);
+        MainScene.createAligned(this, 2, 'b8', 0.4);
+        MainScene.createAligned(this, 2, 'b7', 0.5);
+        MainScene.createAligned(this, 2, 'b6', 0.6);
+        MainScene.createAligned(this, 2, 'b5', 0.7);
+        MainScene.createAligned(this, 2, 'b4', 0.8);
+        MainScene.createAligned(this, 2, 'b3', 0.9);
+        MainScene.createAligned(this, 3, 'b2', 1);
 
         this.platform = this.physics.add.staticGroup();
-        MainScene.createPlatformAligned(this, 18, 'platform', this.platform);
+        MainScene.createPlatformAligned(this, 3, 'platform', this.platform);
 
         const dialogContent : { [key:number]:string; } = {};
         dialogContent[0] = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit,' +
@@ -65,11 +65,10 @@ export default class MainScene extends Phaser.Scene {
             'Ne optime florum nescio gi facile vitari. Ex ente et fide aspi. Ab lente gi to sexta tactu istud. ' +
             'Itaque putare primam nul vul. Fuse ibi unde vidi fuit hic. Ab ostensum se potestis reversus reliquis' +
             ' ut. Lor existeret somniemus ego remotiora tantumque terminari judicandi rea.';
-            ' ut. Lor existeret somniemus ego remotiora tantumque terminari judicandi rea.';
 
         this.kingNPC = new NPC({
             scene: this,
-            x: 1200,
+            x: 1000,
             y: 480,
             key: 'king-idle',
             frameStart: 0,
@@ -79,14 +78,14 @@ export default class MainScene extends Phaser.Scene {
                 scene: this,
                 content: dialogContent,
                 contentSize: 3,
-                NPCPosition: 1200
+                NPCPosition: 1000
             }
         }).setSize(60, 110);
 
-        this.player = this.physics.add.sprite(1000, 480, 'player-idle')
+        this.player = this.physics.add.sprite(300, 480, 'player-idle')
             .setBounce(0.1)
             .setCollideWorldBounds(false)
-            .setSize(30, 120)
+            .setSize(30, 120);
 
         MainScene.createAnimation(this, 'right', 'player-run-right', 0, 7, 12);
         MainScene.createAnimation(this, 'left', 'player-run-left', 0, 7, 12);
@@ -96,11 +95,12 @@ export default class MainScene extends Phaser.Scene {
 
         this.physics.add.collider([this.player, this.kingNPC], this.platform);
 
-        MainScene.createAligned(this, 18, 'grass', 1.1);
-        MainScene.createAligned(this, 18, 'ground', 1.2);
+        MainScene.createAligned(this, 3, 'grass', 1.1);
+        MainScene.createAligned(this, 3, 'ground', 1.2);
 
         this.cursors = this.input.keyboard.createCursorKeys();
         this.cam = this.cameras.main;
+        this.cam.setBounds(0, 0, 2000);
     }
 
     update() {
@@ -110,9 +110,10 @@ export default class MainScene extends Phaser.Scene {
             return;
         }
 
+        // @ts-ignore
         if (this.cursors.right?.isDown && !this.isDialog) {
-            this.player?.setVelocityX(180);
-            this.player?.anims.play('right', true);
+                this.player?.setVelocityX(180);
+                this.player?.anims.play('right', true);
         } else if (this.cursors.left?.isDown && !this.isDialog) {
             this.player?.setVelocityX(-180);
             this.player?.anims.play('left', true);
@@ -122,6 +123,17 @@ export default class MainScene extends Phaser.Scene {
         } else {
             this.player?.setVelocityX(0);
             this.player?.anims.play('idle', true);
+        }
+
+        // @ts-ignore
+        if (this.player?.x >= 2050) {
+            // @ts-ignore
+            this.player.x = -20;
+        }
+        // @ts-ignore
+        if (this.player?.x <= -50) {
+            // @ts-ignore
+            this.player.x = 2020;
         }
     }
 
