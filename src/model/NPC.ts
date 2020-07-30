@@ -4,8 +4,8 @@ import {Dialog} from "~/model/Dialog";
 export class NPC extends Phaser.Physics.Arcade.Sprite {
 
     private dialog: Dialog;
-    private farDistanceText;
-    private sign;
+    private sign: Phaser.GameObjects.Text;
+    private farDistanceText: Phaser.GameObjects.Text;
 
     constructor(config) {
         super(config.scene, config.x, config.y, config.key);
@@ -20,9 +20,12 @@ export class NPC extends Phaser.Physics.Arcade.Sprite {
         this.setInteractive();
 
         this.farDistanceText = config.scene.make.text({
-            x: this.x - 40,
+            x: this.x - 50,
             y: this.y - 50,
             text: 'Come closer',
+            style: {
+                font: '18px'
+            },
             visible: false
         });
 
@@ -32,7 +35,7 @@ export class NPC extends Phaser.Physics.Arcade.Sprite {
             text: '!',
             visible: false,
             style: {
-                font: 'bold 20px Arial',
+                font: '22px Arial',
             }
         })
 
@@ -64,11 +67,11 @@ export class NPC extends Phaser.Physics.Arcade.Sprite {
         });
     }
 
-    private startDialog(playerPosition: number) {
-        this.dialog.openWindow(playerPosition);
-    }
-
     private hideText() {
         this.farDistanceText.visible = false;
+    }
+
+    private startDialog(playerPosition: number) {
+        this.dialog.openWindow(playerPosition);
     }
 }

@@ -80,12 +80,15 @@ export default class MainScene extends Phaser.Scene {
                 contentSize: 3,
                 NPCPosition: 1000
             }
-        }).setSize(60, 110);
+        })
+            .setSize(30, 80)
+            .setOffset(74,37);
 
         this.player = this.physics.add.sprite(300, 480, 'player-idle')
             .setBounce(0.1)
             .setCollideWorldBounds(false)
-            .setSize(30, 120);
+            .setSize(30, 80)
+            .setOffset(71, 47);
 
         MainScene.createAnimation(this, 'right', 'player-run-right', 0, 7, 12);
         MainScene.createAnimation(this, 'left', 'player-run-left', 0, 7, 12);
@@ -137,6 +140,18 @@ export default class MainScene extends Phaser.Scene {
         }
     }
 
+    static createAnimation(scene: Phaser.Scene, key: string, spriteSheet: string,
+                           startFrame: number, endFrame: number, frameRate: number) {
+        scene.anims.create({
+            key: key,
+            frames: scene.anims.generateFrameNumbers(spriteSheet, {
+                start: startFrame, end: endFrame
+            }),
+            frameRate: frameRate,
+            repeat: -1
+        });
+    }
+
     private static createAligned(scene: Phaser.Scene, count: number, texture: string, scrollFactor: number) {
         let x = 0;
         for (let i = 0; i < count; ++i) {
@@ -156,17 +171,5 @@ export default class MainScene extends Phaser.Scene {
 
             x += m.width;
         }
-    }
-
-    static createAnimation(scene: Phaser.Scene, key: string, spriteSheet: string,
-                           startFrame: number, endFrame: number, frameRate: number) {
-        scene.anims.create({
-            key: key,
-            frames: scene.anims.generateFrameNumbers(spriteSheet, {
-                start: startFrame, end: endFrame
-            }),
-            frameRate: frameRate,
-            repeat: -1
-        });
     }
 }
