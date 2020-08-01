@@ -9,8 +9,11 @@ export default class MainScene extends Phaser.Scene {
     private player?: Phaser.Physics.Arcade.Sprite;
     private cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
     private kingNPC?: NPC;
-    private cam;
+    private cam?: Phaser.Cameras.Scene2D.Camera;
     private isDialog?: boolean;
+    private gameStarted?: boolean;
+    private playBtn?: Phaser.GameObjects.Text;
+    private graphics: Phaser.GameObjects.Graphics;
 
     constructor() {
         super('hello-world');
@@ -56,7 +59,7 @@ export default class MainScene extends Phaser.Scene {
         this.platform = this.physics.add.staticGroup();
         MainScene.createPlatformAligned(this, 3, 'platform', this.platform);
 
-        const dialogContent : { [key:number]:string; } = {};
+        const dialogContent: { [key: number]: string; } = {};
         dialogContent[0] = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit,' +
             ' sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.';
         dialogContent[1] = 'Non mea infinitum inquirere judicandi uno cunctatus. Im id satis illam vitae. ' +
@@ -82,9 +85,9 @@ export default class MainScene extends Phaser.Scene {
             }
         })
             .setSize(30, 80)
-            .setOffset(74,37);
+            .setOffset(74, 37);
 
-        this.player = this.physics.add.sprite(300, 480, 'player-idle')
+        this.player = this.physics.add.sprite(-40, 480, 'player-idle')
             .setBounce(0.1)
             .setCollideWorldBounds(false)
             .setSize(30, 80)
@@ -103,27 +106,58 @@ export default class MainScene extends Phaser.Scene {
 
         this.cursors = this.input.keyboard.createCursorKeys();
         this.cam = this.cameras.main;
-        this.cam.setBounds(0, 0, 2000);
+        this.cam.setBounds(0, 0, 2000, 1000);
+
+        this.graphics = this.add.graphics({
+
+        })
+        this.graphics?.fillStyle(0x303030,0.5);
+        this.graphics?.fillRect( 0,  0, 800, 600);
+
+        this.playBtn = this.make.text({
+            x: 350,
+            y: 300,
+            text: 'PLAY',
+            style: {
+                font: `bold 30px Arial`,
+                fillColor: 0xffffff
+            }
+        }, true)
+            .setInteractive()
+            .on('pointerover', () => {
+                this.playBtn?.setTint(0xff0000);
+            })
+            .on('pointerout', () => {
+                this.playBtn?.clearTint();
+            })
+            .on('pointerdown', () => {
+                this.startGame();
+                this.playBtn?.clearTint();
+                this.playBtn?.on('pointerover', () => {
+                })
+            });
+        this.gameStarted = false;
     }
 
     update() {
-        this.cam.startFollow(this.player as GameObject, true, 1, 0.01, -100, 180);
+        this.cam?.startFollow(this.player as GameObject, true, 1, 0.01, -100, 180);
 
         if (!this.cursors) {
             return;
         }
 
         // @ts-ignore
-        if (this.cursors.right?.isDown && !this.isDialog) {
-                this.player?.setVelocityX(180);
-                this.player?.anims.play('right', true);
-        } else if (this.cursors.left?.isDown && !this.isDialog) {
+        if (this.cursors.right?.isDown && !this.isDialog && this.gameStarted) {
+            this.player?.setVelocityX(180);
+            this.player?.anims.play('right', true);
+        } else if (this.cursors.left?.isDown && !this.isDialog && this.gameStarted) {
             this.player?.setVelocityX(-180);
             this.player?.anims.play('left', true);
-        } else if (this.cursors.down?.isDown && !this.isDialog) {
+        } else if (this.cursors.down?.isDown && !this.isDialog && this.gameStarted) {
             this.player?.setVelocityX(0);
             this.player?.anims.play('crouch', true);
-        } else {
+            console.log('elo');
+        } else if (this.gameStarted){
             this.player?.setVelocityX(0);
             this.player?.anims.play('idle', true);
         }
@@ -137,6 +171,12 @@ export default class MainScene extends Phaser.Scene {
         if (this.player?.x <= -50) {
             // @ts-ignore
             this.player.x = 2020;
+        }
+
+        // @ts-ignore
+        if (!this.gameStarted && this.player?.x >= 290) {
+            this.gameStarted = true;
+
         }
     }
 
@@ -171,5 +211,21 @@ export default class MainScene extends Phaser.Scene {
 
             x += m.width;
         }
+    }
+
+    private startGame() {
+        this.add.tween({
+            targets: [this.graphics, this.playBtn],
+            duration: 1200,
+            delay: 0,
+            alpha: {
+                getStart: () => 1,
+                getEnd: () => 0
+            },
+            onComplete: () => {
+                this.player?.setVelocityX(180);
+                this.player?.anims.play('right', true);
+            }
+        })
     }
 }
