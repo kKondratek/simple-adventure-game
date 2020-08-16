@@ -13,7 +13,7 @@ export default class MainScene extends Phaser.Scene {
     private isDialog?: boolean;
     private gameStarted?: boolean;
     private playBtn?: Phaser.GameObjects.Text;
-    private graphics: Phaser.GameObjects.Graphics;
+    private graphics?: Phaser.GameObjects.Graphics;
 
     constructor() {
         super('hello-world');
@@ -46,18 +46,18 @@ export default class MainScene extends Phaser.Scene {
     }
 
     create() {
-        MainScene.createAligned(this, 1, 'b10', 0);
-        MainScene.createAligned(this, 2, 'b9', 0.3);
-        MainScene.createAligned(this, 2, 'b8', 0.4);
-        MainScene.createAligned(this, 2, 'b7', 0.5);
-        MainScene.createAligned(this, 2, 'b6', 0.6);
-        MainScene.createAligned(this, 2, 'b5', 0.7);
-        MainScene.createAligned(this, 2, 'b4', 0.8);
-        MainScene.createAligned(this, 2, 'b3', 0.9);
-        MainScene.createAligned(this, 3, 'b2', 1);
+        MainScene.createAligned(this, 2000, 'b10', 0);
+        MainScene.createAligned(this, 2000, 'b9', 0.3);
+        MainScene.createAligned(this, 2000, 'b8', 0.4);
+        MainScene.createAligned(this, 2000, 'b7', 0.5);
+        MainScene.createAligned(this, 2000, 'b6', 0.6);
+        MainScene.createAligned(this, 2000, 'b5', 0.7);
+        MainScene.createAligned(this, 2000, 'b4', 0.8);
+        MainScene.createAligned(this, 2000, 'b3', 0.9);
+        MainScene.createAligned(this, 2000, 'b2', 1);
 
         this.platform = this.physics.add.staticGroup();
-        MainScene.createPlatformAligned(this, 3, 'platform', this.platform);
+        MainScene.createPlatformAligned(this, 2000, 'platform', this.platform);
 
         const dialogContent: { [key: number]: string; } = {};
         dialogContent[0] = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit,' +
@@ -101,18 +101,16 @@ export default class MainScene extends Phaser.Scene {
 
         this.physics.add.collider([this.player, this.kingNPC], this.platform);
 
-        MainScene.createAligned(this, 3, 'grass', 1.1);
-        MainScene.createAligned(this, 3, 'ground', 1.2);
+        MainScene.createAligned(this, 2000, 'grass', 1.1);
+        MainScene.createAligned(this, 2000, 'ground', 1.2);
 
         this.cursors = this.input.keyboard.createCursorKeys();
         this.cam = this.cameras.main;
         this.cam.setBounds(0, 0, 2000, 1000);
 
-        this.graphics = this.add.graphics({
-
-        })
-        this.graphics?.fillStyle(0x303030,0.5);
-        this.graphics?.fillRect( 0,  0, 800, 600);
+        this.graphics = this.add.graphics({})
+        this.graphics?.fillStyle(0x303030, 0.5);
+        this.graphics?.fillRect(0, 0, 800, 600);
 
         this.playBtn = this.make.text({
             x: 350,
@@ -157,7 +155,7 @@ export default class MainScene extends Phaser.Scene {
             this.player?.setVelocityX(0);
             this.player?.anims.play('crouch', true);
             console.log('elo');
-        } else if (this.gameStarted){
+        } else if (this.gameStarted) {
             this.player?.setVelocityX(0);
             this.player?.anims.play('idle', true);
         }
@@ -192,21 +190,31 @@ export default class MainScene extends Phaser.Scene {
         });
     }
 
-    private static createAligned(scene: Phaser.Scene, count: number, texture: string, scrollFactor: number) {
+    /**
+     * Duplicates texture to the given length.
+     */
+    private static createAligned(scene: Phaser.Scene, length: number, texture: string, scrollFactor: number) {
         let x = 0;
-        for (let i = 0; i < count; ++i) {
+        let n = 0;
+        do {
             const m = scene.add.image(x, scene.scale.height, texture)
                 .setOrigin(0, 1)
                 .setScrollFactor(scrollFactor)
 
+            if (scrollFactor == 0) {
+                break;
+            }
             x += m.width;
-        }
+        } while (x < length)
     }
 
-    private static createPlatformAligned(scene: Phaser.Scene, count: number, texture: string,
+    /**
+     * Duplicates platform to the given length.
+     */
+    private static createPlatformAligned(scene: Phaser.Scene, platformLength: number, texture: string,
                                          platform: Phaser.Physics.Arcade.StaticGroup) {
         let x = 0;
-        for (let i = 0; i < count; ++i) {
+        while (x < platformLength) {
             const m = platform.create(x, scene.scale.height * 0.954, texture)
 
             x += m.width;
