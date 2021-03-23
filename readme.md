@@ -2,6 +2,8 @@
 
 An RPG-style platformer with NPCs dialogue interaction and parallax effect in the background.
 
+![sample](https://github.com/kKondratek/SimpleAdventureGame/blob/master/sample.gif)
+
 ## Built With
 
 * [Phaser 3](http://www.dropwizard.io/1.0.2/docs/) - *HTML5* games framework
