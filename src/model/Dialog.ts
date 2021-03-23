@@ -9,7 +9,7 @@ export class Dialog {
     private readonly btnColor: string;
     private readonly disabledBtnColor: number;
     private readonly dialogSpeed: number;
-    private readonly content: { [key:number]:string; };
+    private readonly content: { [key: number]: string; };
     private readonly contentSize?: number;
     private scene: any;
     private dialog: any;
@@ -97,7 +97,9 @@ export class Dialog {
         this.graphics?.strokeRect(x, y, 20, 20);
     }
 
-    // Creates the close dialog window button
+    /**
+     * Creates the close dialog window button
+     */
     private createCloseWindowBtn() {
         const dialogRef = this;
         if (this.playerPosition) {
@@ -115,13 +117,17 @@ export class Dialog {
         }
     }
 
-    // Creates the border rectangle of the dialog window
+    /**
+     * Creates the border rectangle of the dialog window
+     */
     private createInnerWindow(x, y, rectWidth, rectHeight) {
         this.graphics?.fillStyle(this.windowColor, this.windowAlpha);
         this.graphics?.fillRect(x + 1, y + 1, rectWidth - 1, rectHeight - 1);
     }
 
-    // Creates the border rectangle of the dialog window
+    /**
+     * Creates the border rectangle of the dialog window
+     */
     private createOuterWindow(x, y, rectWidth, rectHeight) {
         this.graphics?.lineStyle(this.borderThickness, this.borderColor, this.borderAlpha);
         this.graphics?.strokeRect(x, y, rectWidth, rectHeight);
@@ -161,7 +167,9 @@ export class Dialog {
         }
     }
 
-    // Creates dialog window
+    /**
+     * Creates dialog window
+     */
     private createWindow() {
         const dimensions = this.calculateWindowDimensions(this.getGameWidth());
         this.graphics = this.scene.add.graphics();
@@ -171,20 +179,22 @@ export class Dialog {
 
         this.createCloseWindowBtn();
         // @ts-ignore
-        this.createBtnBorder(this.playerPosition + 48 + this.getGameWidth() / 2,60);
+        this.createBtnBorder(this.playerPosition + 48 + this.getGameWidth() / 2, 60);
         this.createNextTextBtn();
         // @ts-ignore
         this.createBtnBorder(this.playerPosition + 48 + this.getGameWidth() / 2, 190);
 
         this.createPreviousTextButton();
         // @ts-ignore
-        this.createBtnBorder(this.playerPosition + 28+ this.getGameWidth() / 2, 190);
+        this.createBtnBorder(this.playerPosition + 28 + this.getGameWidth() / 2, 190);
         this.previousBtn?.setFill(this.disabledBtnColor);
 
         this.setDialogText(this.content[this.textPointer] + '');
     }
 
-    // Gets the width of the game (based on the scene)
+    /**
+     * Gets the width of the game (based on the scene)
+     */
     private getGameWidth(): number {
         return this.scene.sys.game.config.width;
     }
